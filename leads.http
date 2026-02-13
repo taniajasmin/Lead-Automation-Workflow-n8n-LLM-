@@ -1,0 +1,16 @@
+# sales
+curl -X POST "https://fireai.app.n8n.cloud/webhook-test/cd6ac94a-31bb-4076-b346-5c20491c18e8" \
+-H "Content-Type: application/json" \
+-d '{"message":"Hello, I am Karim from XYZ Corp. We need enterprise pricing."}'
+
+
+# Support
+# curl -X POST "https://fireai.app.n8n.cloud/webhook-test/cd6ac94a-31bb-4076-b346-5c20491c18e8" \
+# -H "Content-Type: application/json" \
+# -d '{"message":"Your dashboard is not loading properly."}'
+
+
+# # Spam
+# curl -X POST "https://fireai.app.n8n.cloud/webhook-test/cd6ac94a-31bb-4076-b346-5c20491c18e8" \
+# -H "Content-Type: application/json" \
+# -d '{"message":"Earn $5000 daily from crypto investment!!!"}'

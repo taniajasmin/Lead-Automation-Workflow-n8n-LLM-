@@ -1,0 +1,508 @@
+{
+  "name": "My test workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cd6ac94a-31bb-4076-b346-5c20491c18e8",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        576,
+        416
+      ],
+      "id": "f532cf3b-c20d-47bb-abea-2f7a248958fe",
+      "name": "Webhook",
+      "webhookId": "cd6ac94a-31bb-4076-b346-5c20491c18e8"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=You are a lead processing AI.\n\nYour task:\n1. Classify the intent into one of these EXACT values:\n   - sales\n   - support\n   - spam\n\n2. Extract the following fields from the message:\n   - name (person name if mentioned)\n   - company (company name if mentioned)\n   - requirement (short summary of what they want)\n\nRules:\n- Return ONLY valid JSON.\n- Do NOT wrap in markdown.\n- Do NOT include explanations.\n- If a value is missing, set it to null.\n- Always return all four fields.\n\nExample output format:\n{\n  \"intent\": \"sales\",\n  \"name\": \"Karim\",\n  \"company\": \"XYZ Corp\",\n  \"requirement\": \"enterprise pricing\"\n}\n\nMessage:\n{{$json.body.message}}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        800,
+        416
+      ],
+      "id": "ff3ca58d-1cc2-4e41-a42c-8ffb81411704",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "pT9UYBxMxuLkzZ5A",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $json.output[0].content[0].text;\n\nreturn [\n  {\n    json: JSON.parse(raw)\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        416
+      ],
+      "id": "ea2d3e1b-45fb-4485-88b0-05491b9ea1ce",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1lzek8mQ5AZnWG4-MAIRba9eYuepp-v58tCyuLMObRyw",
+          "mode": "list",
+          "cachedResultName": "AI_Leads_Demo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lzek8mQ5AZnWG4-MAIRba9eYuepp-v58tCyuLMObRyw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lzek8mQ5AZnWG4-MAIRba9eYuepp-v58tCyuLMObRyw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Code in JavaScript').item.json.name }}",
+            "Intent": "={{ $('Code in JavaScript').item.json.intent }}",
+            "Company": "={{ $('Code in JavaScript').item.json.company }}",
+            "Requirement": "={{ $('Code in JavaScript').item.json.requirement }}",
+            "Timestamp": "={{$now}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Intent",
+              "displayName": "Intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Requirement",
+              "displayName": "Requirement",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1584,
+        320
+      ],
+      "id": "8d6dcd66-9ac7-421e-bcc2-c565547c71e5",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aFfveWkDtVBJd698",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8d203396-893a-4c5f-86d0-e484e0f58aec",
+              "leftValue": "={{ $json.intent }}",
+              "rightValue": "sales",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1376,
+        416
+      ],
+      "id": "5eb48364-3d34-4341-a056-03ac7b11321c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=You are a professional sales representative.\nWrite a concise, natural, professional reply email based ONLY on the information below.\n\nCustomer Name: {{ $json.name }}\nCompany: {{ $json.company }}\nRequirement: {{ $json.requirement }}\n\nRules:\n- Do NOT use placeholders like [Name] or [Company]\n- Do NOT include meta text like \"Here is your reply\"\n- Do NOT include markdown or separators\n- Do NOT invent features that were not mentioned\n- Do NOT write generic marketing fluff\n- Keep it under 120 words\n- Be direct and specific to the requirement\n- If name is null, start with \"Hi,\" instead of using a name\n- End with a short clear next step\n\nOutput only the final email text."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "c7b6e412-1de7-466d-9562-110ec4010812",
+      "name": "Generate Reply - Sales",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        1824,
+        320
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "pT9UYBxMxuLkzZ5A",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=You are a professional customer support agent.\n\nWrite a concise, human, professional reply to this customer issue:\n\nRequirement: {{ $json.requirement }}\n\nRules:\n- Do NOT include explanations\n- Do NOT include \"Here is your reply\"\n- Do NOT use markdown\n- Do NOT include placeholders like [Your Name]\n- Do NOT use separators like ---\n- Just output the final message text only"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "4d8ea1bd-6e80-4fca-bae5-19c0c12c4a5d",
+      "name": "Generate Reply - Support",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        1824,
+        496
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "pT9UYBxMxuLkzZ5A",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.reply }}",
+        "options": {}
+      },
+      "id": "4c32ad6d-df24-44c1-8810-2300b15945d4",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2432,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1lzek8mQ5AZnWG4-MAIRba9eYuepp-v58tCyuLMObRyw",
+          "mode": "list",
+          "cachedResultName": "AI_Leads_Demo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lzek8mQ5AZnWG4-MAIRba9eYuepp-v58tCyuLMObRyw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lzek8mQ5AZnWG4-MAIRba9eYuepp-v58tCyuLMObRyw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Code in JavaScript').item.json.name }}",
+            "Company": "={{ $('Code in JavaScript').item.json.company }}",
+            "Intent": "={{ $('Code in JavaScript').item.json.intent }}",
+            "Requirement": "={{ $('Code in JavaScript').item.json.requirement }}",
+            "Timestamp": "={{$now}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Intent",
+              "displayName": "Intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Requirement",
+              "displayName": "Requirement",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "334ba312-b247-4591-a238-88a7d11ad803",
+      "name": "Append row in sheet - Branch false",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1584,
+        496
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aFfveWkDtVBJd698",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      reply: $json.output[0].content[0].text\n    }\n  }\n];\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2192,
+        416
+      ],
+      "id": "d9c52bb4-baa2-4934-852d-28c89ecb23d4",
+      "name": "Code in JavaScript1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet - Branch false",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Generate Reply - Sales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Reply - Sales": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Reply - Support": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet - Branch false": {
+      "main": [
+        [
+          {
+            "node": "Generate Reply - Support",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "628e4367-a5f6-43f9-959f-96ff5724b736",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "33154cbf6f2b72dbc585591801225050a30d157ddf5344d351811bc815937c8f"
+  },
+  "id": "YlfRfPIQ3D0ffovIjDHOd",
+  "tags": []
+}
